@@ -28,6 +28,8 @@ pub fn main() !void {
         [_]CELLS{ CELLS.E, CELLS.E, CELLS.E },
     };
 
+    var cpu_turn = false;
+
     while (!r.WindowShouldClose()) {
         r.BeginDrawing();
         r.ClearBackground(r.RAYWHITE);
@@ -45,10 +47,13 @@ pub fn main() !void {
                     .height = CELL_SIZE,
                 };
                 r.DrawRectangle(x, y, CELL_SIZE + 8, CELL_SIZE + 8, r.WHITE);
-                r.DrawRectangle(x + 2, y + 2, CELL_SIZE, CELL_SIZE, r.BLACK);
                 r.DrawRectangleRec(cell, r.BLACK);
                 const sym = board[_row][_col].str();
                 r.DrawText(sym, x + 65, y + 20, CELL_SIZE - 20, r.WHITE);
+                if (cpu_turn and board[_row][_col] == CELLS.E) {
+                    board[_row][_col] = CELLS.X;
+                    cpu_turn = false;
+                }
                 if (r.CheckCollisionPointRec(r.GetMousePosition(), cell) and !cpu_turn) {
                     if (r.IsMouseButtonPressed(r.MOUSE_BUTTON_LEFT)) {
                         board[_row][_col] = PLAYER_CELL;
