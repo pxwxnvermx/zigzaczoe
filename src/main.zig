@@ -21,20 +21,23 @@ pub fn main() !void {
     defer r.CloseWindow();
     var board = [_][GRID_SIZE]str{[_]str{" "} ** GRID_SIZE} ** GRID_SIZE;
     var cpu_turn = false;
+    var turns: u8 = 0;
 
     while (!r.WindowShouldClose()) {
         r.BeginDrawing();
         r.ClearBackground(r.RAYWHITE);
 
-        var random_x = rand.intRangeAtMost(usize, 0, 2);
-        var random_y = rand.intRangeAtMost(usize, 0, 2);
-        while (!std.mem.eql(u8, board[random_x][random_y], " ")) {
-            random_x = rand.intRangeAtMost(usize, 0, 2);
-            random_y = rand.intRangeAtMost(usize, 0, 2);
+        var random_x = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
+        var random_y = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
+        while (!std.mem.eql(u8, board[random_x][random_y], " ") and cpu_turn and turns < GRID_SIZE * GRID_SIZE) {
+            random_x = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
+            random_y = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
         }
-        while (std.mem.eql(u8, board[random_x][random_y], " ") and cpu_turn) {
+
+        if (std.mem.eql(u8, board[random_x][random_y], " ") and cpu_turn) {
             board[random_x][random_y] = CPU_CELL;
             cpu_turn = false;
+            turns += 1;
         }
 
         for (0..GRID_SIZE) |_row| {
@@ -58,6 +61,7 @@ pub fn main() !void {
                     if (r.IsMouseButtonPressed(r.MOUSE_BUTTON_LEFT)) {
                         board[_row][_col] = PLAYER_CELL;
                         cpu_turn = true;
+                        turns += 1;
                     }
                     r.DrawText(PLAYER_CELL, x + 65, y + 20, CELL_SIZE - 20, r.GRAY);
                 }
