@@ -31,21 +31,22 @@ pub fn main() !void {
             for (0..GRID_SIZE) |_col| {
                 const col = @as(c_int, @intCast(_col));
                 const y = col * CELL_SIZE;
-                const cell = r.Rectangle{
+                const cell_rect = r.Rectangle{
                     .x = @floatFromInt(x + 2),
                     .y = @floatFromInt(y + 2),
                     .width = CELL_SIZE,
                     .height = CELL_SIZE,
                 };
                 r.DrawRectangle(x, y, CELL_SIZE + 8, CELL_SIZE + 8, r.WHITE);
-                r.DrawRectangleRec(cell, r.BLACK);
-                const sym = board[_row][_col];
-                r.DrawText(sym, x + 65, y + 20, CELL_SIZE - 20, r.WHITE);
-                if (cpu_turn and std.mem.eql(u8, sym, " ")) {
+                r.DrawRectangleRec(cell_rect, r.BLACK);
+                const cell = board[_row][_col];
+                r.DrawText(cell, x + 65, y + 20, CELL_SIZE - 20, r.WHITE);
+                if (cpu_turn and std.mem.eql(u8, cell, " ")) {
                     board[_row][_col] = CPU_CELL;
                     cpu_turn = false;
                 }
-                if (r.CheckCollisionPointRec(r.GetMousePosition(), cell) and !cpu_turn and std.mem.eql(u8, sym, " ")) {
+                const cell_is_clicked = r.CheckCollisionPointRec(r.GetMousePosition(), cell_rect);
+                if (cell_is_clicked and !cpu_turn and std.mem.eql(u8, cell, " ")) {
                     if (r.IsMouseButtonPressed(r.MOUSE_BUTTON_LEFT)) {
                         board[_row][_col] = PLAYER_CELL;
                         cpu_turn = true;
