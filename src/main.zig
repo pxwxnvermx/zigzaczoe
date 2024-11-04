@@ -5,7 +5,7 @@ const str = *const [1:0]u8;
 
 const WIDTH = 900;
 const GRID_SIZE = 3;
-const CELL_SIZE = WIDTH / 3 - 2;
+const CELL_SIZE = WIDTH / GRID_SIZE - 2;
 const PLAYER_CELL = "O";
 const CPU_CELL = "X";
 
@@ -19,12 +19,7 @@ pub fn main() !void {
     const rand = prng.random();
     r.InitWindow(WIDTH, WIDTH, "Zig Zac Zoe");
     defer r.CloseWindow();
-    var board = [3][3]str{
-        [3]str{ " ", " ", " " },
-        [3]str{ " ", " ", " " },
-        [3]str{ " ", " ", " " },
-    };
-
+    var board = [_][GRID_SIZE]str{[_]str{" "} ** GRID_SIZE} ** GRID_SIZE;
     var cpu_turn = false;
 
     while (!r.WindowShouldClose()) {
