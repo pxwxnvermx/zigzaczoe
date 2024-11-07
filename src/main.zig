@@ -8,6 +8,41 @@ const GRID_SIZE = 3;
 const CELL_SIZE = WIDTH / GRID_SIZE - 2;
 const PLAYER_CELL = "O";
 const CPU_CELL = "X";
+const Board = [GRID_SIZE][GRID_SIZE]str;
+
+fn check_win(board: *Board) bool {
+    var win = false;
+    for (0..GRID_SIZE) |row| {
+        if (std.mem.allEqual(str, &board[row], PLAYER_CELL)) {
+            win = true;
+            break;
+        }
+    }
+
+    for (0..GRID_SIZE) |col| {
+        var col_slice = [_]str{" "} ** GRID_SIZE;
+        for (0..GRID_SIZE) |row| {
+            col_slice[row] = board[row][col];
+        }
+        if (std.mem.allEqual(str, &col_slice, PLAYER_CELL)) {
+            win = true;
+            break;
+        }
+    }
+
+    var pos_diag = [_]str{" "} ** GRID_SIZE;
+    var negative_diag = [_]str{" "} ** GRID_SIZE;
+    for (0..GRID_SIZE) |y| {
+        for (0..GRID_SIZE) |x| {
+            if (x + y == GRID_SIZE - 1)
+                negative_diag[y] = board[x][y];
+        }
+        pos_diag[y] = board[y][y];
+    }
+    if (std.mem.allEqual(str, &pos_diag, PLAYER_CELL)) win = true;
+    if (std.mem.allEqual(str, &negative_diag, PLAYER_CELL)) win = true;
+    return win;
+}
 
 pub fn main() !void {
     r.SetConfigFlags(r.FLAG_VSYNC_HINT);
@@ -24,9 +59,7 @@ pub fn main() !void {
     var turns: u8 = 0;
 
     while (!r.WindowShouldClose()) {
-        r.BeginDrawing();
-        r.ClearBackground(r.RAYWHITE);
-
+        if (check_win(&board)) return;
         var random_x = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
         var random_y = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
         while (!std.mem.eql(u8, board[random_x][random_y], " ") and cpu_turn and turns < GRID_SIZE * GRID_SIZE) {
@@ -39,6 +72,9 @@ pub fn main() !void {
             cpu_turn = false;
             turns += 1;
         }
+
+        r.BeginDrawing();
+        r.ClearBackground(r.RAYWHITE);
 
         for (0..GRID_SIZE) |_row| {
             const row = @as(c_int, @intCast(_row));
@@ -67,7 +103,6 @@ pub fn main() !void {
                 }
             }
         }
-
         r.EndDrawing();
     }
 }
