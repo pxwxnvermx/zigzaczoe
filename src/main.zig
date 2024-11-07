@@ -60,13 +60,8 @@ pub fn main() !void {
 
     while (!r.WindowShouldClose()) {
         if (check_win(&board)) return;
-        var random_x = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
-        var random_y = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
-        while (!std.mem.eql(u8, board[random_x][random_y], " ") and cpu_turn and turns < GRID_SIZE * GRID_SIZE) {
-            random_x = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
-            random_y = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
-        }
-
+        const random_x = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
+        const random_y = rand.intRangeAtMost(usize, 0, GRID_SIZE - 1);
         if (std.mem.eql(u8, board[random_x][random_y], " ") and cpu_turn) {
             board[random_x][random_y] = CPU_CELL;
             cpu_turn = false;
@@ -75,7 +70,6 @@ pub fn main() !void {
 
         r.BeginDrawing();
         r.ClearBackground(r.RAYWHITE);
-
         for (0..GRID_SIZE) |_row| {
             const row = @as(c_int, @intCast(_row));
             const x = row * CELL_SIZE;
