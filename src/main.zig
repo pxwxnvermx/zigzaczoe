@@ -8,17 +8,18 @@ const GRID_SIZE = 3;
 const CELL_SIZE = WIDTH / GRID_SIZE - 2;
 const PLAYER_CELL = "O";
 const CPU_CELL = "X";
+const STATE = enum { running, win, draw };
 const Game = struct {
     board: [GRID_SIZE][GRID_SIZE]str = [_][GRID_SIZE]str{[_]str{" "} ** GRID_SIZE} ** GRID_SIZE,
     cpu_turn: bool = false,
     turns: u8 = 0,
     rand: std.Random,
 
-    pub fn check_win(self: *Game) bool {
-        var win = false;
+    pub fn check_state(self: *Game) STATE {
+        var state = STATE.running;
         for (0..GRID_SIZE) |row| {
             if (std.mem.allEqual(str, &self.board[row], PLAYER_CELL)) {
-                win = true;
+                state = STATE.win;
                 break;
             }
         }
@@ -29,7 +30,7 @@ const Game = struct {
                 col_slice[row] = self.board[row][col];
             }
             if (std.mem.allEqual(str, &col_slice, PLAYER_CELL)) {
-                win = true;
+                state = STATE.win;
                 break;
             }
         }
@@ -43,9 +44,9 @@ const Game = struct {
             }
             pos_diag[y] = self.board[y][y];
         }
-        if (std.mem.allEqual(str, &pos_diag, PLAYER_CELL)) win = true;
-        if (std.mem.allEqual(str, &negative_diag, PLAYER_CELL)) win = true;
-        return win;
+        if (std.mem.allEqual(str, &pos_diag, PLAYER_CELL)) state = STATE.win;
+        if (std.mem.allEqual(str, &negative_diag, PLAYER_CELL)) state = STATE.win;
+        return state;
     }
 
     pub fn do_cpu_turn(self: *Game) void {
@@ -75,7 +76,10 @@ pub fn main() !void {
     var game = Game{ .rand = rand };
 
     while (!r.WindowShouldClose()) {
-        if (game.check_win()) return;
+        const state = game.check_state();
+        if (state != STATE.running) {
+            return;
+        }
         game.do_cpu_turn();
 
         r.BeginDrawing();
